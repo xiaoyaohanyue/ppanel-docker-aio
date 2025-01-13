@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-git_resipository=""
+git_resipository="https://github.com/xiaoyaohanyue/ppanel-docker-aio.git"
 
 # ===========================
 # Color Definitions
@@ -93,25 +93,6 @@ check_ins(){
         return 0
     else
         return 1
-    fi
-}
-
-install_app(){
-    if check_sys packageManager yum; then
-        yum install -y $1
-    elif check_sys packageManager apt; then
-        apt-get update
-        apt-get install -y $1
-    fi
-}
-
-check_app(){
-    if check_ins $1; then
-        echo "$1 has been installed"
-    else
-        echo "$1 is not installed"
-        echo "Install $1..."
-        install_app $1
     fi
 }
 
@@ -264,33 +245,20 @@ disable_firewall(){
 }
 
 check_deps(){
-    check_app curl
-    check_app git
     check_docker
     disable_firewall
 }
 
 pp_start(){
+    cd /opt/dslr
     check_deps
     init_config
     docker-compose up -d
 }
 
-jjump(){
-    workdir='/opt/dslr'
-    if [ ! -d $workdir ]; then
-        mkdir -p $workdir
-    else 
-        rm -rf $workdir
-        mkdir -p $workdir
-    fi
-    cd /opt/dslr
-    git clone $git_resipository .
-    exit 1
-}
 
-OPTIONS="a:b:c:d:e:f:g:ij"
-LONGOPTS="admin_email:,admin_passwd:,api_domain:,admin_domain:,user_domain:,cloudflare_email:,cloudflare_token:,interactive,jump"
+OPTIONS="a:b:c:d:e:f:g:i"
+LONGOPTS="admin_email:,admin_passwd:,api_domain:,admin_domain:,user_domain:,cloudflare_email:,cloudflare_token:,interactive"
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1
@@ -336,10 +304,6 @@ while true;do
             ;;
         -i|--interactive)
             get_user_config_input
-            break
-            ;;
-        -j|--jump)
-            jjump
             break
             ;;
         --)
