@@ -1,0 +1,129 @@
+networks:
+  ppanel:
+    driver: bridge
+
+services:
+  certbot:
+    build:
+      context: ./certbot
+      dockerfile: Dockerfile
+      args:
+        - EMAIL=EMAIL_TEM
+        - API_DOMAIN=API_DOMAIN_TEM
+        - ADMIN_DOMAIN=ADMIN_DOMAIN_TEM
+        - USER_DOMAIN=USER_DOMAIN_TEM
+    container_name: certbot
+    restart: always
+    networks:
+      - ppanel
+    volumes:
+      - certbot_data:/etc/letsencrypt
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do sleep 12h & wait $!; certbot renew --quiet; done;'"
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/sites:/etc/nginx/conf.d
+      - webroot_data:/var/www/certbot
+      - certbot_data:/etc/letsencrypt
+    restart: always
+    networks:
+      - ppanel
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - certbot
+
+  mysql:
+    image: mysql:8.4
+    container_name: pp_mysql
+    restart: always
+    networks:
+      - ppanel
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ppanel
+      MYSQL_USER: ppanel
+      MYSQL_PASSWORD: defaultpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 3
+      start_period: 10s
+      timeout: 2s
+
+  redis:
+    image: redis:7
+    container_name: pp_redis
+    restart: always
+    networks:
+      - ppanel
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 3
+      timeout: 2s
+    
+  ppanel-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: ppanel-server
+    restart: always
+    networks:
+      - ppanel
+    ports:
+      - "8080:8080"
+    # environment:
+    #   - TZ=Asia/Shanghai
+    depends_on:
+      - mysql
+      - redis
+    
+  ppanel-admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    container_name: ppanel-admin
+    restart: always
+    networks:
+      - ppanel
+    ports:
+      - "3001:3000"
+    # environment:
+    #   - TZ=Asia/Shanghai
+    depends_on:
+      - ppanel-server
+
+  ppanel-user:
+    build:
+      context: ./user
+      dockerfile: Dockerfile
+    container_name: ppanel-user
+    restart: always
+    networks:
+      - ppanel
+    ports:
+      - "3000:3000"
+    # environment:
+    #   - TZ=Asia/Shanghai
+    depends_on:
+      - ppanel-server
+  
+
+volumes:
+  mysql_data:
+  redis_data:
+  certbot_data:
+  webroot_data:
