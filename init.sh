@@ -91,7 +91,8 @@ check_deps(){
     disable_firewall
 }
 
-jjump(){
+prepare(){
+    check_deps
     workdir='/opt/dslr'
     if [ ! -d $workdir ]; then
         mkdir -p $workdir
@@ -102,7 +103,7 @@ jjump(){
     cd /opt/dslr
     git clone $git_resipository .
 }
-
+prepare
 OPTIONS="i"
 LONGOPTS="interactive"
 PARSED=$(getopt --options=$OPTIONS --longoptions=$LONGOPTS --name "$0" -- "$@")
