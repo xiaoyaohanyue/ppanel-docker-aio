@@ -111,11 +111,6 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
-if [[ $# -eq 0 ]]; then
-    echo "错误：未提供任何参数。请使用正确的命令行参数。"
-    exit 1
-fi
-
 eval set -- "$PARSED"
 
 while true;do
