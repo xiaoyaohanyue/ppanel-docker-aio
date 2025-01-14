@@ -28,6 +28,6 @@ Redis:
   Pass: # Redis密码, 默认: ""
   DB: # Redis数据库, 默认: 0
  
-Administer:
+Administrator:
   Email: Email_TMP # 后台登录邮箱, 默认: admin@ppanel.dev
   Password: Password_TMP # 后台登录密码, 默认: password
