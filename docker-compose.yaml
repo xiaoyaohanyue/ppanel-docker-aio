@@ -1,7 +1,3 @@
-networks:
-  ppanel:
-    driver: bridge
-
 services:
   certbot:
     build:
@@ -48,8 +44,8 @@ services:
       MYSQL_DATABASE: ppanel
       MYSQL_USER: ppanel
       MYSQL_PASSWORD: defaultpassword
-    ports:
-      - "3306:3306"
+    # ports:
+    #   - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -65,8 +61,8 @@ services:
     restart: always
     networks:
       - ppanel
-    ports:
-      - "6379:6379"
+    # ports:
+    #   - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -83,8 +79,8 @@ services:
     restart: always
     networks:
       - ppanel
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "8080:8080"
     # environment:
     #   - TZ=Asia/Shanghai
     depends_on:
@@ -99,8 +95,8 @@ services:
     restart: always
     networks:
       - ppanel
-    ports:
-      - "3001:3000"
+    # ports:
+    #   - "3001:3000"
     # environment:
     #   - TZ=Asia/Shanghai
     depends_on:
@@ -114,8 +110,8 @@ services:
     restart: always
     networks:
       - ppanel
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
     # environment:
     #   - TZ=Asia/Shanghai
     depends_on:
@@ -127,3 +123,7 @@ volumes:
   redis_data:
   certbot_data:
   webroot_data:
+
+networks:
+  ppanel:
+    driver: bridge
