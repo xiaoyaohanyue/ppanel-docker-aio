@@ -253,7 +253,7 @@ pp_start(){
     cd /opt/dslr
     check_deps
     init_config
-    docker-compose up -d
+    docker compose up -d
 }
 
 
