@@ -84,9 +84,11 @@ services:
     # environment:
     #   - TZ=Asia/Shanghai
     depends_on:
-      - mysql
-      - redis
-    
+      - mysql:
+          condition: service_healthy
+      - redis:
+          condition: service_healthy
+
   ppanel-admin:
     build:
       context: ./admin
